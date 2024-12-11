@@ -16,3 +16,52 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+footer {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
+
+/* Spotify themed styles */
+body {
+    background: #000000;
+    color: white;
+}
+
+.card {
+    background: #1f1f1f;
+    border-radius: 8px;
+}
+
+.btn {
+    border-radius: 100px;
+}
+
+.btn-green {
+    background: #1ed760;
+    font-weight: 500;
+}
+
+.btn-white {
+    background: white;
+    font-weight: 500;
+}
+
+.btn-outline-white {
+    color: white;
+    border-color: white;
+    border-width: thin;
+    font-weight: 500;
+}
+
+.btn-outline-white:hover {
+    box-shadow: 0 0 1px 1px white;
+    color: white;
+}
+
+.main-card {
+    max-width: 850px;
+    margin-left: auto;
+    margin-right: auto;
+}

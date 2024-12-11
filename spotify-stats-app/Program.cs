@@ -9,6 +9,12 @@ namespace spotify_stats_app
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            // Add browser session
+            builder.Services.AddSession(opt =>
+            {
+                opt.IdleTimeout = TimeSpan.FromMinutes(150);
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -26,9 +32,11 @@ namespace spotify_stats_app
 
             app.UseAuthorization();
 
+            app.UseSession();
+
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Stats}/{action=Index}/{id?}");
+                pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
         }

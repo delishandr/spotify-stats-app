@@ -1,8 +1,22 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewBag.Title = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="main-card">
+    <h1>Welcome!</h1>
+    <div class="mb-3">
+        <div class="card">
+            <div class="card-body">
+                <label for="formFile" class="form-label">Input your streaming history files here:</label>
+                <input class="form-control" type="file" id="formFile" accept="json" multiple>
+                <div class="mt-4 d-flex justify-content-end gap-2">
+                    <button class="btn btn-outline-white">Tutorial</button>
+                    <a class="btn btn-green" asp-controller="Stats">Load Data</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
