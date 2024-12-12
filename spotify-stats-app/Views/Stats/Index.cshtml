@@ -8,27 +8,18 @@
     <h1>@ViewBag.Title</h1>
     <div class="card">
         <div class="card-body m-2">
-            <div>@ViewBag.TotalData streams have been loaded!</div>
+            <div>Your stream data has been loaded!</div>
             <div class="mt-3">
                 Try these features now:
                 <div class="mt-2 row align-items-center">
-                    <div class="col-2">
-                        Top
-                    </div>
-                    <div class="col-3">
-                        <select class="form-select" aria-label="Select top" id="top-select">
-                            <option value="tracks" selected>Tracks</option>
-                            <option value="artists">Artists</option>
-                            <option value="albums">Albums</option>
-                        </select>
-                    </div>
-                    <div class="col-1"></div>
+                    @*
                     <div class="col-2">Period</div>
                     <div class="col-4">
                         <select class="form-select" aria-label="Select period" id="period-select">
                             <option value="weekly">Weekly</option>
                             <option value="monthly">Monthly</option>
                             <option value="yearly" selected>Yearly</option>
+                            <option value="thisyear">This Year</option>
                             <option value="custom">Custom</option>
                         </select>
                     </div>
@@ -41,11 +32,11 @@
                 </div>
                 <div class="d-flex justify-content-end mt-3">
                     <button class="btn btn-green">Search</button>
-                </div>
+                </div>*@
                 <div class="mt-2 d-flex justify-content-center gap-3">
-                    <a class="btn btn-white" asp-action="TopTracks">Top Tracks</a>
-                    <button class="btn btn-white">Top Artists</button>
-                    <button class="btn btn-white">Top Albums</button>
+                    <button class="btn btn-white" id="btn-top-tracks">Top Tracks</button>
+                    <button class="btn btn-white" id="btn-top-artists">Top Artists</button>
+                    <button class="btn btn-white" id="btn-top-albums">Top Albums</button>
                 </div>
             </div>
         </div>
@@ -56,5 +47,15 @@
     $("#period-select").change(() => {
         console.log($("#period-select").find(":selected").val());
         $("#datetime-range-pick").prop('hidden', !($("#period-select").find(":selected").val() == "custom"))
+    })
+
+    $('#btn-top-tracks').click(() => {
+        location.href = "/Stats/TopTracks";
+    })
+    $('#btn-top-artists').click(() => {
+        location.href = "/Stats/TopArtists";
+    })
+    $('#btn-top-albums').click(() => {
+        location.href = "/Stats/TopAlbums";
     })
 </script>

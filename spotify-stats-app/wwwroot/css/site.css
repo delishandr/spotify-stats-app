@@ -23,6 +23,10 @@ footer {
     bottom: 0;
 }
 
+.fw-lightbold {
+    font-weight: 600;
+}
+
 /* Spotify themed styles */
 body {
     background: #000000;

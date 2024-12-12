@@ -21,7 +21,7 @@ namespace spotify_stats_app.Controllers
             savedPath = new DirectoryInfo(saveDir);
         }
 
-        private int LoadStreamFiles()
+        public IActionResult LoadStreamFiles()
         {
             // delete "saved" folder and create new empty folder
             foreach (DirectoryInfo di in fullPath.GetDirectories())
@@ -59,7 +59,7 @@ namespace spotify_stats_app.Controllers
                 System.IO.File.WriteAllText(Path.Combine(saveDir, $"Yearly_Data_{i}.json"), dataJson);
             }
 
-            return totalData;
+            return RedirectToAction("Index");
         }
 
         private List<StreamData> GetAllData(DateTime start, DateTime end)
@@ -81,32 +81,113 @@ namespace spotify_stats_app.Controllers
             return allData;
         }
 
-        public IActionResult TopTracks(DateTime? startPeriod = null, DateTime? endPeriod = null)
+        private DateTime[] GetStartEnd(DateTime? startPeriod, DateTime? endPeriod, string period)
         {
-            DateTime start = startPeriod == null ? DateTime.Parse("2024-01-01") : startPeriod.Value;
-            DateTime end = endPeriod == null ? DateTime.Now : endPeriod.Value;
+            DateTime start, end = DateTime.Now;
 
-            List<StreamData> streams = GetAllData(start, end);
+            switch (period)
+            {
+                case "weekly":
+                    start = DateTime.Now.AddDays(-7);
+                    break;
+                case "monthly":
+                    start = DateTime.Now.AddMonths(-1);
+                    break;
+                case "yearly":
+                    start = DateTime.Now.AddYears(-1);
+                    break;
+                case "thisyear":
+                    start = DateTime.Parse("2024-01-01");
+                    break;
+                case "custom":
+                    start = startPeriod.Value;
+                    end = endPeriod.Value;
+                    break;
+                default:
+                    start = DateTime.Parse("1970-01-01");
+                    break;
 
-            List<TopTrack> topTracks = (
+            }
+
+            return new DateTime[] { start, end };
+        }
+
+        public IActionResult TopTracks(DateTime? startPeriod = null, DateTime? endPeriod = null, string period = "thisyear")
+        {
+            DateTime[] datePeriod = GetStartEnd(startPeriod, endPeriod, period);
+            List<StreamData> streams = GetAllData(datePeriod[0], datePeriod[1]);
+
+            List<TopStream> topTracks = (
                 from s in streams
                 group s.ms_played by new { s.master_metadata_track_name, s.master_metadata_album_artist_name }
                     into t
-                select new TopTrack()
+                select new TopStream()
                 {
                     trackName = t.Key.master_metadata_track_name,
                     artistName = t.Key.master_metadata_album_artist_name,
                     duration = t.Sum()
                 }).OrderByDescending(t => t.duration).ToList();
 
-            return View();
+            topTracks = topTracks.GetRange(0, 20);
+
+            ViewBag.Title = "Your Top Tracks";
+            ViewBag.StartPeriod = datePeriod[0];
+            ViewBag.EndPeriod = datePeriod[1];
+
+            return View(topTracks);
+        }
+
+        public IActionResult TopArtists(DateTime? startPeriod = null, DateTime? endPeriod = null, string period = "thisyear")
+        {
+            DateTime[] datePeriod = GetStartEnd(startPeriod, endPeriod, period);
+            List<StreamData> streams = GetAllData(datePeriod[0], datePeriod[1]);
+
+            List<TopStream> topArtists = (
+                from s in streams
+                group s.ms_played by new { s.master_metadata_album_artist_name }
+                    into t
+                select new TopStream()
+                {
+                    artistName = t.Key.master_metadata_album_artist_name,
+                    duration = t.Sum()
+                }).OrderByDescending(t => t.duration).ToList();
+
+            topArtists = topArtists.GetRange(0, 20);
+
+            ViewBag.Title = "Your Top Artists";
+            ViewBag.StartPeriod = datePeriod[0];
+            ViewBag.EndPeriod = datePeriod[1];
+
+            return View(topArtists);
+        }
+
+        public IActionResult TopAlbums(DateTime? startPeriod = null, DateTime? endPeriod = null, string period = "thisyear")
+        {
+            DateTime[] datePeriod = GetStartEnd(startPeriod, endPeriod, period);
+            List<StreamData> streams = GetAllData(datePeriod[0], datePeriod[1]);
+
+            List<TopStream> topAlbums = (
+                from s in streams
+                group s.ms_played by new { s.master_metadata_album_album_name, s.master_metadata_album_artist_name }
+                    into t
+                select new TopStream()
+                {
+                    albumName = t.Key.master_metadata_album_album_name,
+                    artistName = t.Key.master_metadata_album_artist_name,
+                    duration = t.Sum()
+                }).OrderByDescending(t => t.duration).ToList();
+
+            topAlbums = topAlbums.GetRange(0, 20);
+
+            ViewBag.Title = "Your Top Albums";
+            ViewBag.StartPeriod = datePeriod[0];
+            ViewBag.EndPeriod = datePeriod[1];
+
+            return View(topAlbums);
         }
 
         public IActionResult Index()
         {
-            int totalData = LoadStreamFiles();
-
-            ViewBag.TotalData = totalData;
             ViewBag.Title = "Success!";
 
             return View();

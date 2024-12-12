@@ -1,0 +1,39 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model List<TopStream>
+@{
+}
+
+<div class="main-card">
+    <h1>@ViewBag.Title</h1>
+	<div class="my-3 h6">
+		<span>Period:</span>
+		<span class="ms-2">@(ViewBag.StartPeriod.ToString("MMMM dd, yyyy")) - @(ViewBag.EndPeriod.ToString("MMMM dd, yyyy"))</span>
+	</div>
+    <div class="mb-3">
+        <div class="card">
+            <div class="card-body m-2">
+				<div class="d-flex align-items-center mb-2 fw-bold">
+					<div class="text-center" style="width: 50px;">#</div>
+					<div class="ms-3">Name</div>
+					<div class="ms-auto">Minutes played</div>
+				</div>
+                <div class="d-flex flex-column gap-2">
+					@for (int i = 0; i < Model.Count; i++)
+					{
+					    <div class="d-flex align-items-center">
+						    <div class="h1 text-center" style="width: 50px;">@(i + 1)</div>
+						    <div class="ms-3">
+							    <div class="fw-lightbold">@Model[i].artistName</div>
+						    </div>
+                            <div class="ms-auto">@((Model[i].duration / 60000).ToString("N0"))</div>
+					    </div>
+					}
+                    
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
