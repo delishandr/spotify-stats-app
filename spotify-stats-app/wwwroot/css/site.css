@@ -27,6 +27,18 @@ footer {
     font-weight: 600;
 }
 
+.fw-extrabold {
+    font-weight: 800;
+}
+
+.number-top20 {
+    width: 50px;
+}
+
+.number-all {
+    width: 40px;
+}
+
 /* Spotify themed styles */
 body {
     background: #000000;
@@ -38,7 +50,7 @@ body {
     border-radius: 8px;
 }
 
-.btn {
+.btn-round {
     border-radius: 100px;
 }
 

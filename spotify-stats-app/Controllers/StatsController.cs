@@ -10,54 +10,20 @@ namespace spotify_stats_app.Controllers
         private readonly IWebHostEnvironment hostingEnvironment;
         private string strFullPath;
         DirectoryInfo fullPath;
-        DirectoryInfo savedPath;
+        private int pageSize;
 
-        public StatsController(IWebHostEnvironment _hostingEnvironment)
+        public StatsController(IWebHostEnvironment _hostingEnvironment, IConfiguration _config)
         {
             hostingEnvironment = _hostingEnvironment;
             strFullPath = Path.Combine(hostingEnvironment.ContentRootPath, "wwwroot/jsondata");
             fullPath = new DirectoryInfo(strFullPath);
-            string saveDir = Path.Combine(strFullPath, "saved");
-            savedPath = new DirectoryInfo(saveDir);
+
+            pageSize = int.Parse(_config["PageSize"]);
         }
 
         public IActionResult LoadStreamFiles()
         {
-            // delete "saved" folder and create new empty folder
-            foreach (DirectoryInfo di in fullPath.GetDirectories())
-            {
-                di.Delete(true);
-            }
-            string saveDir = Path.Combine(strFullPath, "saved");
-            Directory.CreateDirectory(saveDir);
-            
-            // save all data to list
-            List<StreamData> allData = new List<StreamData>();
-            IEnumerable<FileInfo> Files = fullPath.GetFiles("*.json");
-            {
-                foreach (FileInfo file in Files)
-                {
-                    var jsonData = System.IO.File.ReadAllText(file.FullName);
-                    string data = JsonConvert.SerializeObject(new { streamData = jsonData });
-                    var streams = JsonConvert.DeserializeObject<List<StreamData>>(jsonData);
-
-                    allData.AddRange(streams);
-                }
-            }
-
-            int totalData = allData.Count();
-
-            // split each data to yearly, remove streams with null trackname values (podcast streams)
-            int earliest = allData[0].ts.Year;
-            int curYear = DateTime.Now.Year;
-
-            for (int i = earliest; i <= curYear; i++)
-            {
-                List<StreamData> yearlyData = allData
-                    .Where(d => d.ts.Year == i && d.master_metadata_track_name != null).ToList();
-                string dataJson = JsonConvert.SerializeObject(yearlyData);
-                System.IO.File.WriteAllText(Path.Combine(saveDir, $"Yearly_Data_{i}.json"), dataJson);
-            }
+            // TODO: load files from the input to jsondata dir
 
             return RedirectToAction("Index");
         }
@@ -66,7 +32,7 @@ namespace spotify_stats_app.Controllers
         {
 
             List<StreamData> allData = new List<StreamData>();
-            IEnumerable<FileInfo> Files = savedPath.GetFiles("*.json");
+            IEnumerable<FileInfo> Files = fullPath.GetFiles("*.json");
 
             foreach (FileInfo file in Files)
             {
@@ -76,7 +42,7 @@ namespace spotify_stats_app.Controllers
 
                 allData.AddRange(streams);
             }
-            allData = allData.Where(d => d.ts >= start && d.ts <= end).ToList();
+            allData = allData.Where(d => d.ts >= start && d.ts <= end && d.master_metadata_track_name != null).ToList();
 
             return allData;
         }
@@ -87,9 +53,6 @@ namespace spotify_stats_app.Controllers
 
             switch (period)
             {
-                case "weekly":
-                    start = DateTime.Now.AddDays(-7);
-                    break;
                 case "monthly":
                     start = DateTime.Now.AddMonths(-1);
                     break;
@@ -152,14 +115,49 @@ namespace spotify_stats_app.Controllers
                     duration = t.Sum()
                 }).OrderByDescending(t => t.duration).ToList();
 
-            topArtists = topArtists.GetRange(0, 20);
+            topArtists = topArtists.GetRange(0, Math.Min(20, topArtists.Count));
 
             ViewBag.Title = "Your Top Artists";
             ViewBag.StartPeriod = datePeriod[0];
             ViewBag.EndPeriod = datePeriod[1];
+            ViewBag.Period = period;
 
             return View(topArtists);
         }
+
+        public IActionResult TopArtistsAll(DateTime? startPeriod = null, DateTime? endPeriod = null, string period = "thisyear", int page = 1)
+        {
+			DateTime[] datePeriod = GetStartEnd(startPeriod, endPeriod, period);
+			List<StreamData> streams = GetAllData(datePeriod[0], datePeriod[1]);
+
+			List<TopStream> topArtists = (
+				from s in streams
+				group s.ms_played by new { s.master_metadata_album_artist_name }
+					into t
+				select new TopStream()
+				{
+					artistName = t.Key.master_metadata_album_artist_name,
+					duration = t.Sum()
+				}).OrderByDescending(t => t.duration).ToList();
+
+            // pagination
+			int startIdx = (page - 1) * pageSize;
+
+            ViewBag.TotalItems = topArtists.Count;
+            ViewBag.Page = page;
+            ViewBag.StartItem = startIdx + 1;
+			ViewBag.PageSize = Math.Min(pageSize, topArtists.Count - (page - 1) * pageSize);
+			ViewBag.TotalPages = Math.Ceiling(topArtists.Count / (double)pageSize);
+
+            topArtists = topArtists.GetRange(startIdx, ViewBag.PageSize);
+
+			ViewBag.Title = "Your Top Artists";
+			ViewBag.StartPeriod = datePeriod[0];
+			ViewBag.EndPeriod = datePeriod[1];
+            ViewBag.Period = period;
+
+			return View(topArtists);
+		}
 
         public IActionResult TopAlbums(DateTime? startPeriod = null, DateTime? endPeriod = null, string period = "thisyear")
         {

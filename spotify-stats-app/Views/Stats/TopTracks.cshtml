@@ -15,7 +15,7 @@
 		<div class="card">
 			<div class="card-body m-2">
 				<div class="d-flex align-items-center mb-2 fw-bold">
-					<div class="text-center" style="width: 50px;">#</div>
+					<div class="text-center number-top20">#</div>
 					<div class="ms-3">Name</div>
 					<div class="ms-auto">Minutes played</div>
 				</div>
@@ -23,7 +23,7 @@
 					@for (int i = 0; i < Model.Count; i++)
 					{
 						<div class="d-flex align-items-center">
-							<div class="h1 text-center" style="width: 50px;">@(i + 1)</div>
+							<div class="h1 text-center number-top20">@(i + 1)</div>
 							<div class="ms-3">
 								<div class="fw-lightbold">@Model[i].trackName</div>
 								<div>@Model[i].artistName</div>
