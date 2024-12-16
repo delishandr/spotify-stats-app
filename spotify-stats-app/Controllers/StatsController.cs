@@ -62,6 +62,9 @@ namespace spotify_stats_app.Controllers
                 case "thisyear":
                     start = DateTime.Parse("2024-01-01");
                     break;
+                case "lifetime":
+                    start = DateTime.Parse("1970-01-01");
+                    break;
                 case "custom":
                     start = startPeriod.Value;
                     end = endPeriod.Value;
@@ -104,6 +107,11 @@ namespace spotify_stats_app.Controllers
         {
             DateTime[] datePeriod = GetStartEnd(startPeriod, endPeriod, period);
             List<StreamData> streams = GetAllData(datePeriod[0], datePeriod[1]);
+
+            if (period == "lifetime")
+            {
+                datePeriod[0] = streams[0].ts;
+            }
 
             List<TopStream> topArtists = (
                 from s in streams
@@ -150,6 +158,18 @@ namespace spotify_stats_app.Controllers
 			ViewBag.TotalPages = Math.Ceiling(topArtists.Count / (double)pageSize);
 
             topArtists = topArtists.GetRange(startIdx, ViewBag.PageSize);
+
+            int first = 1, end = (int)ViewBag.TotalPages;
+
+
+			if (ViewBag.TotalPages > 15)
+            {
+                first = Math.Max(1, page - 7);
+                end = Math.Min(end, page + 7);
+            }
+
+            ViewBag.FirstPage = first;
+            ViewBag.LastPage = end;
 
 			ViewBag.Title = "Your Top Artists";
 			ViewBag.StartPeriod = datePeriod[0];

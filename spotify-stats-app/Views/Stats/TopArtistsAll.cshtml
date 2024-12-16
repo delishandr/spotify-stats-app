@@ -7,6 +7,7 @@
 }
 
 <div class="main-card">
+	<button class="btn btn-link text-white mb-3 p-0" onclick="goBack()"><i class="fas fa-arrow-left me-3"></i>Back</button>
 	<h1>@ViewBag.Title</h1>
 	<div class="my-3 h6">
 		<span>Period:</span>
@@ -44,7 +45,7 @@
 				   onclick="changePage(1)"></i>
 				<i role="button" class="fas fa-angle-left @(ViewBag.Page == 1 ? new HtmlString("text-white-50") : "")" 
 				   onclick="changePage(@(ViewBag.Page - 1))"></i>
-				@for (int i = 1; i <= ViewBag.TotalPages; i++)
+				@for (int i = ViewBag.FirstPage; i <= ViewBag.LastPage; i++)
 				{
 					if (i == ViewBag.Page)
 					{
@@ -67,5 +68,9 @@
 <script>
 	function changePage(i) {
 		location.href = `/Stats/TopArtistsAll?period=${'@ViewBag.Period'}&page=${i}`;
+	}
+
+	function goBack() {
+		location.href = `/Stats/TopArtists?period=${'@ViewBag.Period'}`;
 	}
 </script>

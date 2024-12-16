@@ -36,7 +36,7 @@ footer {
 }
 
 .number-all {
-    width: 40px;
+    width: 60px;
 }
 
 /* Spotify themed styles */
@@ -80,4 +80,8 @@ body {
     max-width: 850px;
     margin-left: auto;
     margin-right: auto;
+}
+
+.background-black {
+    background: black;
 }

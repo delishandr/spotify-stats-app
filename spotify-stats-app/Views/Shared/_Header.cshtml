@@ -20,8 +20,33 @@
                     <li class="nav-item">
                         <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                     </li>
+                    <li class="nav-item">
+                        <div class="dropdown">
+                            <a class="btn btn-link dropdown-toggle nav-link text-light" href="#" role="button" id="menuStats" data-bs-toggle="dropdown" aria-expanded="false" onclick="clickToggle()">
+                                Top Stats
+                            </a>
+                            <ul class="dropdown-menu background-black" aria-labelledby="menuStats">
+                                <li><a class="dropdown-item text-white" asp-controller="Stats" asp-action="TopArtists">Top Artists</a></li>
+                                <li><a class="dropdown-item text-white" asp-controller="Stats" asp-action="TopTracks">Top Tracks</a></li>
+                                <li><a class="dropdown-item text-white" asp-controller="Stats" asp-action="TopAlbums">Top Albums</a></li>
+                            </ul>
+                        </div>
+
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 </header>
+
+<script>
+    function clickToggle() {
+        $('.dropdown-menu').toggle();
+    }
+</script>
+
+<style scoped>
+    .dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+        color: black !important;
+    }
+</style>
