@@ -22,7 +22,7 @@
                     </li>
                     <li class="nav-item">
                         <div class="dropdown">
-                            <a class="btn btn-link dropdown-toggle nav-link text-light" href="#" role="button" id="menuStats" data-bs-toggle="dropdown" aria-expanded="false" onclick="clickToggle()">
+                            <a class="btn btn-link dropdown-toggle nav-link text-light" href="#" role="button" id="menuStats" data-bs-toggle="dropdown" aria-expanded="false">
                                 Top Stats
                             </a>
                             <ul class="dropdown-menu background-black" aria-labelledby="menuStats">
@@ -40,9 +40,13 @@
 </header>
 
 <script>
-    function clickToggle() {
+    $('#menuStats').hover(() => {
         $('.dropdown-menu').toggle();
-    }
+    })
+
+    $('.dropdown-menu').hover(() => {
+        $('.dropdown-menu').toggle();
+    })
 </script>
 
 <style scoped>

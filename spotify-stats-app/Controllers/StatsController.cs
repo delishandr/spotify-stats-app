@@ -80,6 +80,8 @@ namespace spotify_stats_app.Controllers
 
         public IActionResult TopTracks(DateTime? startPeriod = null, DateTime? endPeriod = null, string period = "thisyear")
         {
+
+
             DateTime[] datePeriod = GetStartEnd(startPeriod, endPeriod, period);
             List<StreamData> streams = GetAllData(datePeriod[0], datePeriod[1]);
 
