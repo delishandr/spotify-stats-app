@@ -83,6 +83,11 @@ namespace spotify_stats_app.Controllers
             DateTime[] datePeriod = GetStartEnd(startPeriod, endPeriod, period);
             List<StreamData> streams = GetAllData(datePeriod[0], datePeriod[1]);
 
+            if (period == "lifetime")
+            {
+                datePeriod[0] = streams[0].ts;
+            }
+
             List<TopStream> topTracks = (
                 from s in streams
                 group s.ms_played by new { s.master_metadata_track_name, s.master_metadata_album_artist_name }
@@ -94,16 +99,68 @@ namespace spotify_stats_app.Controllers
                     duration = t.Sum()
                 }).OrderByDescending(t => t.duration).ToList();
 
-            topTracks = topTracks.GetRange(0, 20);
+            topTracks = topTracks.GetRange(0, Math.Min(20, topTracks.Count));
 
             ViewBag.Title = "Your Top Tracks";
             ViewBag.StartPeriod = datePeriod[0];
             ViewBag.EndPeriod = datePeriod[1];
+            ViewBag.Period = period;
 
             return View(topTracks);
         }
 
-        public IActionResult TopArtists(DateTime? startPeriod = null, DateTime? endPeriod = null, string period = "thisyear")
+		public IActionResult TopTracksAll(DateTime? startPeriod = null, DateTime? endPeriod = null, string period = "thisyear", int page = 1)
+		{
+			DateTime[] datePeriod = GetStartEnd(startPeriod, endPeriod, period);
+			List<StreamData> streams = GetAllData(datePeriod[0], datePeriod[1]);
+
+			if (period == "lifetime")
+			{
+				datePeriod[0] = streams[0].ts;
+			}
+
+			List<TopStream> topTracks = (
+				from s in streams
+				group s.ms_played by new { s.master_metadata_track_name, s.master_metadata_album_artist_name }
+					into t
+				select new TopStream()
+				{
+					trackName = t.Key.master_metadata_track_name,
+					artistName = t.Key.master_metadata_album_artist_name,
+					duration = t.Sum()
+				}).OrderByDescending(t => t.duration).ToList();
+
+			// pagination
+			int startIdx = (page - 1) * pageSize;
+
+			ViewBag.TotalItems = topTracks.Count;
+			ViewBag.Page = page;
+			ViewBag.StartItem = startIdx + 1;
+			ViewBag.PageSize = Math.Min(pageSize, topTracks.Count - (page - 1) * pageSize);
+			ViewBag.TotalPages = Math.Ceiling(topTracks.Count / (double)pageSize);
+
+			topTracks = topTracks.GetRange(startIdx, ViewBag.PageSize);
+
+			int first = 1, end = (int)ViewBag.TotalPages;
+
+			if (ViewBag.TotalPages > 15)
+			{
+				first = Math.Max(1, page - 7);
+				end = Math.Min(end, page + 7);
+			}
+
+			ViewBag.FirstPage = first;
+			ViewBag.LastPage = end;
+
+			ViewBag.Title = "Your Top Tracks";
+			ViewBag.StartPeriod = datePeriod[0];
+			ViewBag.EndPeriod = datePeriod[1];
+			ViewBag.Period = period;
+
+			return View(topTracks);
+		}
+
+		public IActionResult TopArtists(DateTime? startPeriod = null, DateTime? endPeriod = null, string period = "thisyear")
         {
             DateTime[] datePeriod = GetStartEnd(startPeriod, endPeriod, period);
             List<StreamData> streams = GetAllData(datePeriod[0], datePeriod[1]);
@@ -137,6 +194,11 @@ namespace spotify_stats_app.Controllers
         {
 			DateTime[] datePeriod = GetStartEnd(startPeriod, endPeriod, period);
 			List<StreamData> streams = GetAllData(datePeriod[0], datePeriod[1]);
+
+			if (period == "lifetime")
+			{
+				datePeriod[0] = streams[0].ts;
+			}
 
 			List<TopStream> topArtists = (
 				from s in streams
@@ -184,7 +246,12 @@ namespace spotify_stats_app.Controllers
             DateTime[] datePeriod = GetStartEnd(startPeriod, endPeriod, period);
             List<StreamData> streams = GetAllData(datePeriod[0], datePeriod[1]);
 
-            List<TopStream> topAlbums = (
+			if (period == "lifetime")
+			{
+				datePeriod[0] = streams[0].ts;
+			}
+
+			List<TopStream> topAlbums = (
                 from s in streams
                 group s.ms_played by new { s.master_metadata_album_album_name, s.master_metadata_album_artist_name }
                     into t
@@ -195,16 +262,69 @@ namespace spotify_stats_app.Controllers
                     duration = t.Sum()
                 }).OrderByDescending(t => t.duration).ToList();
 
-            topAlbums = topAlbums.GetRange(0, 20);
+            topAlbums = topAlbums.GetRange(0, Math.Min(20, topAlbums.Count));
 
             ViewBag.Title = "Your Top Albums";
             ViewBag.StartPeriod = datePeriod[0];
             ViewBag.EndPeriod = datePeriod[1];
+			ViewBag.Period = period;
 
-            return View(topAlbums);
+			return View(topAlbums);
         }
 
-        public IActionResult Index()
+		public IActionResult TopAlbumsAll(DateTime? startPeriod = null, DateTime? endPeriod = null, string period = "thisyear", int page = 1)
+		{
+			DateTime[] datePeriod = GetStartEnd(startPeriod, endPeriod, period);
+			List<StreamData> streams = GetAllData(datePeriod[0], datePeriod[1]);
+
+			if (period == "lifetime")
+			{
+				datePeriod[0] = streams[0].ts;
+			}
+
+			List<TopStream> topAlbums = (
+				from s in streams
+				group s.ms_played by new { s.master_metadata_album_album_name, s.master_metadata_album_artist_name }
+					into t
+				select new TopStream()
+				{
+					albumName = t.Key.master_metadata_album_album_name,
+					artistName = t.Key.master_metadata_album_artist_name,
+					duration = t.Sum()
+				}).OrderByDescending(t => t.duration).ToList();
+
+			// pagination
+			int startIdx = (page - 1) * pageSize;
+
+			ViewBag.TotalItems = topAlbums.Count;
+			ViewBag.Page = page;
+			ViewBag.StartItem = startIdx + 1;
+			ViewBag.PageSize = Math.Min(pageSize, topAlbums.Count - (page - 1) * pageSize);
+			ViewBag.TotalPages = Math.Ceiling(topAlbums.Count / (double)pageSize);
+
+			topAlbums = topAlbums.GetRange(startIdx, ViewBag.PageSize);
+
+			int first = 1, end = (int)ViewBag.TotalPages;
+
+
+			if (ViewBag.TotalPages > 15)
+			{
+				first = Math.Max(1, page - 7);
+				end = Math.Min(end, page + 7);
+			}
+
+			ViewBag.FirstPage = first;
+			ViewBag.LastPage = end;
+
+			ViewBag.Title = "Your Top Albums";
+			ViewBag.StartPeriod = datePeriod[0];
+			ViewBag.EndPeriod = datePeriod[1];
+			ViewBag.Period = period;
+
+			return View(topAlbums);
+		}
+
+		public IActionResult Index()
         {
             ViewBag.Title = "Success!";
 
