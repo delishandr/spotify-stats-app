@@ -15,7 +15,8 @@ namespace spotify_stats_app.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            JsonFile file = new JsonFile();
+            return View(file);
         }
 
         public IActionResult Privacy()

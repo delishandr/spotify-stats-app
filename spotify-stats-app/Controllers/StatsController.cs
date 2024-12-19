@@ -7,23 +7,39 @@ namespace spotify_stats_app.Controllers
 {
     public class StatsController : Controller
     {
-        private readonly IWebHostEnvironment hostingEnvironment;
-        private string strFullPath;
-        DirectoryInfo fullPath;
+        private readonly IWebHostEnvironment webHostEnv;
+        private readonly string jsonFolder;
         private int pageSize;
 
-        public StatsController(IWebHostEnvironment _hostingEnvironment, IConfiguration _config)
+        public StatsController(IWebHostEnvironment _webHostEnv, IConfiguration _config)
         {
-            hostingEnvironment = _hostingEnvironment;
-            strFullPath = Path.Combine(hostingEnvironment.ContentRootPath, "wwwroot/jsondata");
-            fullPath = new DirectoryInfo(strFullPath);
-
+            jsonFolder = _config["JsonFolder"];
+            webHostEnv = _webHostEnv;
             pageSize = int.Parse(_config["PageSize"]);
         }
 
-        public IActionResult LoadStreamFiles()
+        private string UploadFile(IFormFile? file)
         {
-            // TODO: load files from the input to jsondata dir
+            string fileName = string.Empty;
+
+            if (file != null)
+            {
+                using (FileStream fileStream = new FileStream(
+                    $"{webHostEnv.WebRootPath}\\{jsonFolder}\\{fileName}",
+                    FileMode.CreateNew
+                ))
+                    file.CopyTo(fileStream);
+            }
+
+            return fileName;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LoadStreamFiles(JsonFile model)
+        {
+            //Response<List<IFormFile>> response = new Response<List<IFormFile>>();
+
+
 
             return RedirectToAction("Index");
         }
@@ -32,6 +48,7 @@ namespace spotify_stats_app.Controllers
         {
 
             List<StreamData> allData = new List<StreamData>();
+            DirectoryInfo fullPath = new DirectoryInfo($"{webHostEnv.WebRootPath}\\{jsonFolder}");
             IEnumerable<FileInfo> Files = fullPath.GetFiles("*.json");
 
             foreach (FileInfo file in Files)
@@ -78,10 +95,8 @@ namespace spotify_stats_app.Controllers
             return new DateTime[] { start, end };
         }
 
-        public IActionResult TopTracks(DateTime? startPeriod = null, DateTime? endPeriod = null, string period = "thisyear")
+        public IActionResult TopTracks(DateTime? startPeriod = null, DateTime? endPeriod = null, string period = "thisyear", string type = "duration")
         {
-
-
             DateTime[] datePeriod = GetStartEnd(startPeriod, endPeriod, period);
             List<StreamData> streams = GetAllData(datePeriod[0], datePeriod[1]);
 
@@ -90,28 +105,41 @@ namespace spotify_stats_app.Controllers
                 datePeriod[0] = streams[0].ts;
             }
 
-            List<TopStream> topTracks = (
+            List<TopStream> topTracks = new List<TopStream>();
+
+            var listTracks = (
                 from s in streams
                 group s.ms_played by new { s.master_metadata_track_name, s.master_metadata_album_artist_name }
-                    into t
+                            into t
                 select new TopStream()
                 {
                     trackName = t.Key.master_metadata_track_name,
                     artistName = t.Key.master_metadata_album_artist_name,
-                    duration = t.Sum()
-                }).OrderByDescending(t => t.duration).ToList();
+                    duration = t.Sum(),
+                    count = t.Count()
+                });
 
+            switch (type)
+            {
+                case "count":
+					topTracks = listTracks.OrderByDescending(t => t.count).ToList();
+					break;
+                default:
+					topTracks = listTracks.OrderByDescending(t => t.duration).ToList();
+					break;
+            }
             topTracks = topTracks.GetRange(0, Math.Min(20, topTracks.Count));
 
             ViewBag.Title = "Your Top Tracks";
             ViewBag.StartPeriod = datePeriod[0];
             ViewBag.EndPeriod = datePeriod[1];
             ViewBag.Period = period;
+            ViewBag.Type = type;
 
             return View(topTracks);
         }
 
-		public IActionResult TopTracksAll(DateTime? startPeriod = null, DateTime? endPeriod = null, string period = "thisyear", int page = 1)
+		public IActionResult TopTracksAll(DateTime? startPeriod = null, DateTime? endPeriod = null, string period = "thisyear", string type = "duration", int page = 1)
 		{
 			DateTime[] datePeriod = GetStartEnd(startPeriod, endPeriod, period);
 			List<StreamData> streams = GetAllData(datePeriod[0], datePeriod[1]);
@@ -121,16 +149,29 @@ namespace spotify_stats_app.Controllers
 				datePeriod[0] = streams[0].ts;
 			}
 
-			List<TopStream> topTracks = (
+			List<TopStream> topTracks = new List<TopStream>();
+
+			var listTracks = (
 				from s in streams
 				group s.ms_played by new { s.master_metadata_track_name, s.master_metadata_album_artist_name }
-					into t
+							into t
 				select new TopStream()
 				{
 					trackName = t.Key.master_metadata_track_name,
 					artistName = t.Key.master_metadata_album_artist_name,
-					duration = t.Sum()
-				}).OrderByDescending(t => t.duration).ToList();
+					duration = t.Sum(),
+					count = t.Count()
+				});
+
+			switch (type)
+			{
+				case "count":
+					topTracks = listTracks.OrderByDescending(t => t.count).ToList();
+					break;
+				default:
+					topTracks = listTracks.OrderByDescending(t => t.duration).ToList();
+					break;
+			}
 
 			// pagination
 			int startIdx = (page - 1) * pageSize;

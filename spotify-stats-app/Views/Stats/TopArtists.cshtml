@@ -28,7 +28,18 @@
 					<button class="btn btn-green" type="button" id="btn-change-period"><i class="fas fa-sync-alt"></i></button>
 				</div>
 			</div>
-			<div>@* date time picker *@</div>
+		</div>
+	</div>
+	<div class="d-flex" id="customPeriod">
+		<div class="ms-auto d-flex gap-3" hidden>
+			<div class="mb-3 input-period" hidden>
+				<label>Start Period</label>
+				<input class="form-control" type="date" id="startPeriod" value="@ViewBag.StartPeriod.ToString("yyyy-MM-dd")" />
+			</div>
+			<div class="mb-3 input-period" hidden>
+				<label>End Period</label>
+				<input class="form-control" type="date" id="endPeriod" value="@ViewBag.EndPeriod.ToString("yyyy-MM-dd")" />
+			</div>
 		</div>
 	</div>
     <div class="mb-3">
@@ -74,12 +85,17 @@
 
 <script>
 	$('#period-select').val('@ViewBag.Period');
+	$('.input-period').prop('hidden', $('#period-select').val() != "custom");
 
 	$('#btn-all-top-artists').click(() => {
-		location.href = `/Stats/TopArtistsAll?period=${'@ViewBag.Period'}`;
+		location.href = `/Stats/TopArtistsAll?period=${'@ViewBag.Period'}&startPeriod=${'@ViewBag.StartPeriod'}&endPeriod=${'@ViewBag.EndPeriod'}`;
+	})
+
+	$('#period-select').change(() => {
+		$('.input-period').prop('hidden', $('#period-select').val() != "custom");
 	})
 
 	$('#btn-change-period').click(() => {
-		location.href = `/Stats/TopArtists?period=${$('#period-select').val()}`
+		location.href = `/Stats/TopArtists?period=${$('#period-select').val()}&startPeriod=${$('#startPeriod').val()}&endPeriod=${$('#endPeriod').val()}`
 	})
 </script>

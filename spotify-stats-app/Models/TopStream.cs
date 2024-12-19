@@ -6,5 +6,6 @@
         public string? artistName { get; set; }
         public string? albumName { get; set; }
         public int duration { get; set; }
+        public int count { get; set; }
     }
 }
