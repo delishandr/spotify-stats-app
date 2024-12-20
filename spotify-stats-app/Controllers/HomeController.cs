@@ -24,6 +24,12 @@ namespace spotify_stats_app.Controllers
             return View();
         }
 
+        public IActionResult Tutorial()
+        {
+            ViewBag.Title = "Tutorial";
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

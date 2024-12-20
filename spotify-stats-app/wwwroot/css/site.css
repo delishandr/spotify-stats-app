@@ -50,6 +50,18 @@ body {
     border-radius: 8px;
 }
 
+.text-green {
+    color: #1ed760;
+}
+
+.w-80 {
+    width: 80%;
+}
+
+.w-60 {
+    width: 60%;
+}
+
 .btn-round {
     border-radius: 100px;
 }

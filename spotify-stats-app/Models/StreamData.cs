@@ -12,7 +12,7 @@
         public string? reason_end { get; set; }
         public bool shuffle { get; set; }
         public bool skipped { get; set; }
-        public bool offline { get; set; }
+        public bool? offline { get; set; }
         public long? offline_timestamp { get; set; }
         public bool incognito_mode { get; set; }
     }
