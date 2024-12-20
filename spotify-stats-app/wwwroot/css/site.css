@@ -85,3 +85,7 @@ body {
 .background-black {
     background: black;
 }
+
+[hidden] {
+    display: none !important;
+}

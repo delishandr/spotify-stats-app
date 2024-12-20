@@ -36,5 +36,18 @@
         setTimeout(() => {
             $("#alert-placeholder").slideUp("slow")
         }, 5000);
+
+        setTimeout(() => {
+            $("#alert-placeholder").empty();
+        }, 5500);
     }
 </script>
+
+<style scoped>
+    .alert-popup {
+        z-index: 2000;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+</style>

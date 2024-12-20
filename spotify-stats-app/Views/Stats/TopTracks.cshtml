@@ -99,10 +99,8 @@
 								{
 									<div class="ms-auto">@(Model[i].count)</div>
 								}
-								
 							</div>
 						}
-
 					</div>
 					<div class="mt-3 d-flex justify-content-end">
 						<button id="btn-all-top-tracks" class="btn btn-link text-white fw-lightbold p-0">View All</button>
@@ -153,9 +151,3 @@
 		location.href = `/Stats/TopTracks?type=${$('#type-select').val()}&period=${$('#period-select').val()}&startPeriod=${$('#startPeriod').val()}&endPeriod=${$('#endPeriod').val()}`
 	})
 </script>
-
-<style scoped>
-	[hidden] {
-		display: none !important;
-	}
-</style>

@@ -21,7 +21,14 @@
 					<div class="d-flex align-items-center mb-2 fw-bold">
 						<div class="text-center number-all">#</div>
 						<div class="ms-3">Name</div>
-						<div class="ms-auto">Minutes played</div>
+						@if (ViewBag.Type == "duration")
+						{
+							<div class="ms-auto">Minutes played</div>
+						}
+						else
+						{
+							<div class="ms-auto">Times played</div>
+						}
 					</div>
 					<div class="d-flex flex-column gap-2">
 						@for (int i = 0; i < Model.Count; i++)
@@ -32,11 +39,19 @@
 									<div class="fw-lightbold">@Model[i].albumName</div>
 									<div>@Model[i].artistName</div>
 								</div>
-								<div class="ms-auto">
-									@((Model[i].duration / 60000) >= 1 ?
-																(Model[i].duration / 60000).ToString("N0") : (Model[i].duration / (double)60000).ToString("N3")
-																)
-								</div>
+								@if (ViewBag.Type == "duration")
+								{
+									<div class="ms-auto">
+										@((Model[i].duration / 60000) >= 1 
+											? (Model[i].duration / 60000).ToString("N0") 
+											: (Model[i].duration / (double)60000).ToString("N3")
+										)
+									</div>
+								}
+								else
+								{
+									<div class="ms-auto">@(Model[i].count)</div>
+								}
 							</div>
 						}
 
@@ -84,10 +99,10 @@
 
 <script>
 	function changePage(i) {
-		location.href = `/Stats/TopAlbumsAll?period=${'@ViewBag.Period'}&page=${i}`;
+		location.href = `/Stats/TopAlbumsAll?period=${'@ViewBag.Period'}&type=${'@ViewBag.Type'}&startPeriod=${'@ViewBag.StartPeriod'}&endPeriod=${'@ViewBag.EndPeriod'}&page=${i}`;
 	}
 
 	function goBack() {
-		location.href = `/Stats/TopAlbums?period=${'@ViewBag.Period'}&startPeriod=${'@ViewBag.StartPeriod'}&endPeriod=${'@ViewBag.EndPeriod'}`;
+		location.href = `/Stats/TopAlbums?period=${'@ViewBag.Period'}&type=${'@ViewBag.Type'}&startPeriod=${'@ViewBag.StartPeriod'}&endPeriod=${'@ViewBag.EndPeriod'}`;
 	}
 </script>

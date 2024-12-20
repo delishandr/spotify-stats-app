@@ -11,12 +11,15 @@
     <div class="mb-3">
         <div class="card">
             <div class="card-body">
-                <form method="post" enctype="multipart/form-data" asp-controller="Stats" asp-action="LoadStreamFiles">
+                <form id="frmLoadStream">
                     <label for="formFile" class="form-label">Input your streaming history files here:</label>
-                    <input class="form-control" asp-for="Files" multiple>
-                    <div class="mt-4 d-flex justify-content-end gap-2">
+                    <input class="form-control" name="Files" type="file" multiple />
+                    <div class="mt-4 d-flex justify-content-end gap-2 align-items-center">
+                        <div class="spinner-border" role="status" hidden>
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
                         <button class="btn btn-outline-white">Tutorial</button>
-                        <button type="submit" class="btn btn-green" id="btnLoad">Load Data</button>
+                        <button class="btn btn-green" id="btnLoad">Load Data</button>
                     </div>
                 </form>
             </div>
@@ -25,66 +28,33 @@
 </div>
 
 <script>
-    // $('#btnLoad').click(function (e) {
-    //     e.preventDefault();
-    //     let data = new FormData();
-    //     $.each($("#formFile")[0].files, function (key, file) {
-    //         data.append('data['+key+'].formFile', file);
-    //     });
-    //     for (var pair of data.entries()) {
-    //         console.log(pair[0] + ', ' + pair[1]);
-    //     }
-
-    //     $.ajax({
-    //         url: "/Stats/LoadStreamFiles",
-    //         type: "post",
-    //         dataType: "json",
-    //         contentType: "multipart/form-data",
-    //         data: data,
-    //         processData: false,
-    //         success: (response) => {
-    //             if (response.statusCode == 200 || response.statusCode == 201) {
-    //                 alert(response.message, "info");
-    //                 location.href = "/Stats"
-    //             }
-    //             else {
-    //                 alert(response.message, "danger");
-    //             }
-    //         },
-    //         error: (errResponse) => {
-    //             console.error(errResponse);
-    //             debugger;
-    //         }
-    //     });
-    // });
-
-    function saveDocuments(documentList) {
-        if (documentList.length > 0) {
-            var form = new FormData();
-            for (var i = 0; i < documentList.length; i++) {
-                var file = documentList[i];
-                change here
-                form.append('data', file);
-            }
-            savePhysicalFile(form);
-        }
-    }
-    function savePhysicalFile(data) {
-        if (data != null) {
+    $(document).ready(() => { 
+        $('#btnLoad').click(function (e) {
+            e.preventDefault();
+            $('.spinner-border').prop('hidden', false);
+            let formData = new FormData($("#frmLoadStream")[0]);
             $.ajax({
                 url: "/Stats/LoadStreamFiles",
-                type: 'POST',
-                dataType: "json",
-                data: data,
+                type: "post",
+                data: formData,
                 processData: false,
                 contentType: false,
-                success: function (result) {
-                    console.log("Success", result);
+                dataType: "json",
+                success: (response) => {
+                    if (response.statusCode == 200 || response.statusCode == 201) {
+                        location.href = "/Stats"
+                    }
+                    else {
+                        alert(response.message, "danger");
+                        $('.spinner-border').prop('hidden', true);
+                    }
                 },
-                error: function (data) {
-                    console.log(data);
+                error: (errResponse) => {
+                    console.error(errResponse);
+                    debugger;
                 }
             });
-        }
-    }
+        });
+    
+    })
 </script>

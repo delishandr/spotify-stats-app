@@ -2,6 +2,6 @@
 {
     public class JsonFile
     {
-        public List<IFormFile> Files { get; set; }
+        public List<IFormFile>? Files { get; set; }
     }
 }
